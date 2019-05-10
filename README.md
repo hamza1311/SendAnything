@@ -1,7 +1,7 @@
 # SendAnything
 SendAnything is an Android app that lets its users to send files between their Android device and PC wirelessly over WiFi.
 
-##Technologies used
+## Technologies used
 The Android app is built in Kotlin and server side is built in Python.
 Files are sent over FTP from computer to Android and over TCP Sockets from Android to computer.
 
