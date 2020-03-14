@@ -4,6 +4,7 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <utility>
 
 typedef websocketpp::server<websocketpp::config::asio> server;
 
@@ -36,19 +37,22 @@ void on_message(server *s, websocketpp::connection_hdl hdl, const message_ptr& m
 
             std::cout << "\nBinary received\n";
 
-            s->send(hdl, payload, msg->get_opcode());
+            s->send(std::move(hdl), "Successfully received", websocketpp::frame::opcode::text);
         }
 
     } catch (websocketpp::exception const &e) {
-        std::cout << "Echo failed because: "
-                  << "(" << e.what() << ")" << std::endl;
+        std::cout << e.what()<< std::endl;
     }
 }
 
 // Define a callback to handle connection opens
 void on_open(server *s, websocketpp::connection_hdl hdl) {
-    s->send(std::move(hdl), "Text", websocketpp::frame::opcode::binary);
-    std::cout << "yes";
+    std::string path = "/home/hamza/Pictures/385149.jpg";
+    std::ifstream ifs(path, std::ios::binary);
+    std::string payload = std::string(std::istreambuf_iterator<char>(ifs), std::istreambuf_iterator<char>());
+    ifs.close();
+
+    s->send(std::move(hdl), payload, websocketpp::frame::opcode::binary);
 }
 
 int main() {
