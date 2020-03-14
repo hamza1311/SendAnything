@@ -16,19 +16,18 @@ using websocketpp::lib::bind;
 typedef server::message_ptr message_ptr;
 
 // Define a callback to handle incoming messages
-void on_message(server *s, websocketpp::connection_hdl hdl, message_ptr msg) {
+void on_message(server *s, websocketpp::connection_hdl hdl, const message_ptr& msg) {
 
     try {
         std::string filename = "name.png"; // temp
         std::string payload = msg->get_payload();
         websocketpp::frame::opcode::value opcode = msg->get_opcode();
 
-        if (opcode == websocketpp::frame::opcode::text) {
-            std::cout << "Text Message Received\n";
-	    
-        } else if (opcode == websocketpp::frame::opcode::binary) {
+
+        if (opcode == websocketpp::frame::opcode::binary) {
             std::cout << filename << "\n";
             std::cout << "Size " << payload.size() << "\n";
+            std::cout << "opcode " << opcode << "\n";
 
             std::ofstream outfile;
             outfile.open(filename);
@@ -46,30 +45,37 @@ void on_message(server *s, websocketpp::connection_hdl hdl, message_ptr msg) {
     }
 }
 
+// Define a callback to handle connection opens
+void on_open(server *s, websocketpp::connection_hdl hdl) {
+    s->send(std::move(hdl), "Text", websocketpp::frame::opcode::binary);
+    std::cout << "yes";
+}
+
 int main() {
     std::cout << "Hello World" << std::endl;
     // Create a server endpoint
-    server echo_server;
+    server server;
 
     try {
         // Set logging settings
-        echo_server.set_access_channels(websocketpp::log::alevel::none);
-        echo_server.clear_access_channels(websocketpp::log::alevel::none);
+        server.set_access_channels(websocketpp::log::alevel::none);
+        server.clear_access_channels(websocketpp::log::alevel::none);
 
         // Initialize Asio
-        echo_server.init_asio();
+        server.init_asio();
 
         // Register our message handler
-        echo_server.set_message_handler(bind(&on_message, &echo_server, ::_1, ::_2));
+        server.set_message_handler(bind(&on_message, &server, ::_1, ::_2));
+        server.set_open_handler(bind(&on_open, &server, ::_1));
 
         // Listen on port 9002
-        echo_server.listen(9002);
+        server.listen(9002);
 
         // Start the server accept loop
-        echo_server.start_accept();
+        server.start_accept();
 
         // Start the ASIO io_service run loop
-        echo_server.run();
+        server.run();
     } catch (const std::exception& e) {
         std::cout << e.what() << std::endl;
     } catch (...) {
