@@ -7,7 +7,9 @@ set(EXEC send-anything-server)
 
 set(CMAKE_CXX_STANDARD 14)
 
-include_directories(includes)
+set (CMAKE_CXX_FLAGS "-lboost_system -lboost_thread -pthread")
+
+include_directories(includes /usr/local/boost_1_69_0)
 
 file(GLOB SOURCES *.cpp)
 
