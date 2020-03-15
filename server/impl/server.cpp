@@ -19,19 +19,19 @@ using server::Server;
 Server::Server(int _port) {
     this->port = _port;
 
-    server.set_access_channels(websocketpp::log::alevel::none);
-    server.clear_access_channels(websocketpp::log::alevel::none);
-    server.init_asio();
+    m_server.set_access_channels(websocketpp::log::alevel::none);
+    m_server.clear_access_channels(websocketpp::log::alevel::none);
+    m_server.init_asio();
 
-    server.set_message_handler(bind(&Server::on_message, this, ::_1, ::_2));
-    server.set_open_handler(bind(&Server::on_open, this, ::_1));
+    m_server.set_message_handler(bind(&Server::on_message, this, ::_1, ::_2));
+    m_server.set_open_handler(bind(&Server::on_open, this, ::_1));
 }
 
 void Server::start() {
     try {
-        server.listen(this->port);
-        server.start_accept();
-        server.run();
+        m_server.listen(this->port);
+        m_server.start_accept();
+        m_server.run();
     } catch (const std::exception &e) {
         std::cout << e.what() << std::endl;
     } catch (...) {
@@ -47,7 +47,7 @@ void Server::on_open(websocketpp::connection_hdl hdl) {
     std::string payload = std::string(std::istreambuf_iterator<char>(ifs), std::istreambuf_iterator<char>());
     ifs.close();
 
-    server.send(std::move(hdl), payload, websocketpp::frame::opcode::binary);
+    m_server.send(std::move(hdl), payload, websocketpp::frame::opcode::binary);
 }
 
 void Server::on_message(websocketpp::connection_hdl hdl, const asio_server::message_ptr &msg) {
@@ -69,7 +69,7 @@ void Server::on_message(websocketpp::connection_hdl hdl, const asio_server::mess
 
             std::cout << "\nBinary received\n";
 
-            server.send(std::move(hdl), "Successfully received", websocketpp::frame::opcode::text);
+            m_server.send(std::move(hdl), "Successfully received", websocketpp::frame::opcode::text);
         }
 
     } catch (websocketpp::exception const &e) {
