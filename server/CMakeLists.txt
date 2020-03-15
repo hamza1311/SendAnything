@@ -12,5 +12,6 @@ set (CMAKE_CXX_FLAGS "-lboost_system -lboost_thread -pthread")
 include_directories(includes /usr/local/boost_1_69_0)
 
 file(GLOB SOURCES *.cpp)
+file(GLOB IMPL_SOURCES impl/*.cpp)
 
-add_executable(${EXEC} ${SOURCES})
+add_executable(${EXEC} ${IMPL_SOURCES} ${SOURCES})
