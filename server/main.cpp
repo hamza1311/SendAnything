@@ -1,10 +1,21 @@
-//#include "headers/server.hpp"
+#include "headers/sending_server.h"
 #include <gtkmm.h>
 #include <iostream>
 
+Gtk::Window *window = nullptr;
+
+void done_callback() {
+    window->close();
+}
+
 void on_send_button_click() {
+
     std::cout << "Send Clicked \n";
-    // TODO: Load file picker, get file, start server send file
+    // TODO: Load file picker, get file path
+    std::string path = "/home/hamza/Pictures/385149.jpg"; // Get this path from user
+    server::SendingServer server(9002, path, done_callback);
+    server.start();
+
 }
 
 void on_receive_button_clicked() {
@@ -20,8 +31,6 @@ Gtk::Button *loadButton(const Glib::RefPtr<Gtk::Builder> &builder, const std::st
 }
 
 int main(int argc, char *argv[]) {
-//    server::Server server(9002);
-//    server.start();
 
     auto app = Gtk::Application::create(argc, argv, "org.gtkmm.examples.base");
 
@@ -40,7 +49,6 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    Gtk::Window *window = nullptr;
     builder->get_widget("MainWindow", window);
 
     loadButton(builder, "SendButton", on_send_button_click);

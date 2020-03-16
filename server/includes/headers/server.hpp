@@ -12,14 +12,13 @@ typedef websocketpp::server<websocketpp::config::asio> asio_server;
 
 namespace server {
     class Server {
-    private:
+    protected:
         asio_server m_server;
-        int port;
-        void on_open(websocketpp::connection_hdl hdl);
-        void on_message(websocketpp::connection_hdl hdl, const asio_server::message_ptr& msg);
+
     public:
-        void start();
         explicit Server(int _port);
+
+        int port;
     };
 
 }

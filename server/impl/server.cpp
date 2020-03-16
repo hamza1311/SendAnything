@@ -23,34 +23,11 @@ Server::Server(int _port) {
     m_server.clear_access_channels(websocketpp::log::alevel::none);
     m_server.init_asio();
 
-    m_server.set_message_handler(bind(&Server::on_message, this, ::_1, ::_2));
-    m_server.set_open_handler(bind(&Server::on_open, this, ::_1));
+//    m_server.set_message_handler(bind(&Server::onMessage, this, ::_1, ::_2));
 }
 
-void Server::start() {
-    try {
-        m_server.listen(this->port);
-        m_server.start_accept();
-        m_server.run();
-    } catch (const std::exception &e) {
-        std::cout << e.what() << std::endl;
-    } catch (...) {
-        std::cout << "Something horribly went wrong" << std::endl;
-    }
-}
-
-void Server::on_open(websocketpp::connection_hdl hdl) {
-    std::cout << "Connection opened\n";
-
-    std::string path = "/home/hamza/Pictures/385149.jpg"; // Get this path from user
-    std::ifstream ifs(path, std::ios::binary);
-    std::string payload = std::string(std::istreambuf_iterator<char>(ifs), std::istreambuf_iterator<char>());
-    ifs.close();
-
-    m_server.send(std::move(hdl), payload, websocketpp::frame::opcode::binary);
-}
-
-void Server::on_message(websocketpp::connection_hdl hdl, const asio_server::message_ptr &msg) {
+/*
+void Server::onMessage(websocketpp::connection_hdl hdl, const asio_server::message_ptr &msg) {
     try {
         std::string filename = "name.png"; // temp
         std::string payload = msg->get_payload();
@@ -75,4 +52,4 @@ void Server::on_message(websocketpp::connection_hdl hdl, const asio_server::mess
     } catch (websocketpp::exception const &e) {
         std::cout << e.what() << std::endl;
     }
-}
+}*/
