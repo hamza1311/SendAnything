@@ -4,21 +4,17 @@
 
 Gtk::Window *window = nullptr;
 
-void done_callback() {
-    window->close();
-}
-
-void on_send_button_click() {
+void onSendButtonClicked() {
 
     std::cout << "Send Clicked \n";
     // TODO: Load file picker, get file path
     std::string path = "/home/hamza/Pictures/385149.jpg"; // Get this path from user
-    server::SendingServer server(9002, path, done_callback);
+    server::SendingServer server(9002, path, [] { window->close(); });
     server.start();
 
 }
 
-void on_receive_button_clicked() {
+void onReceiveButtonClicked() {
     std::cout << "Receive Clicked \n";
     // TODO: Load file picker, get save location, start server send file
 }
@@ -32,7 +28,7 @@ Gtk::Button *loadButton(const Glib::RefPtr<Gtk::Builder> &builder, const std::st
 
 int main(int argc, char *argv[]) {
 
-    auto app = Gtk::Application::create(argc, argv, "org.gtkmm.examples.base");
+    auto app = Gtk::Application::create(argc, argv, "dev.hamza.send-anything");
 
     Glib::RefPtr<Gtk::Builder> builder = Gtk::Builder::create();
     try {
@@ -51,8 +47,8 @@ int main(int argc, char *argv[]) {
 
     builder->get_widget("MainWindow", window);
 
-    loadButton(builder, "SendButton", on_send_button_click);
-    loadButton(builder, "ReceiveButton", on_receive_button_clicked);
+    loadButton(builder, "SendButton", onSendButtonClicked);
+    loadButton(builder, "ReceiveButton", onReceiveButtonClicked);
 
     return app->run(*window);
 }
