@@ -42,7 +42,7 @@ std::string getFile() {
 class Task {
 public:
     static void send(std::string path) {
-        server::SendingServer server(9002, path, [] {  });
+        server::SendingServer server(9002, path);
         server.start();
     }
 };

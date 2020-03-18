@@ -8,10 +8,9 @@ using websocketpp::lib::bind;
 
 using server::SendingServer;
 
-void SendingServer::onMessage(websocketpp::connection_hdl hdl, const asio_server::message_ptr &msg) {
+void SendingServer::onMessage(const websocketpp::connection_hdl& hdl, const asio_server::message_ptr &msg) {
     if (msg->get_opcode() == websocketpp::frame::opcode::close || msg->get_payload() == "stfu") {
         m_server.stop(); // Forcefully stop the server because yes
-        doneCallback();
     }
 }
 
@@ -37,10 +36,9 @@ void SendingServer::start() {
     }
 }
 
-server::SendingServer::SendingServer(int _port, const std::string &fileToSend, void _doneCallback()) {
+server::SendingServer::SendingServer(int _port, const std::string &fileToSend) {
     port = _port;
     filepath = fileToSend;
-    doneCallback = _doneCallback;
 
     m_server.init_asio();
 }

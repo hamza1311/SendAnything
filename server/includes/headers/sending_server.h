@@ -10,14 +10,12 @@ namespace server {
     protected:
         void onOpen(websocketpp::connection_hdl hdl);
 
-        void onMessage(websocketpp::connection_hdl hdl, const asio_server::message_ptr &msg);
-
-        std::function<void ()> doneCallback;
+        void onMessage(const websocketpp::connection_hdl& hdl, const asio_server::message_ptr &msg);
 
         asio_server m_server;
 
     public:
-        SendingServer(int port, const std::string &fileToSend, void _doneCallback());
+        SendingServer(int port, const std::string &fileToSend);
 
         void start();
 
