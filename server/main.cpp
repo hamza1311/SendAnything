@@ -1,22 +1,66 @@
 #include "headers/sending_server.h"
 #include <gtkmm.h>
 #include <iostream>
+#include <thread>
+#include <functional>
 
 Gtk::Window *window = nullptr;
+
+std::string getFile() {
+    std::cout << "Receive Clicked \n";
+
+    Gtk::FileChooserDialog dialog("Please choose a file",
+                                  Gtk::FILE_CHOOSER_ACTION_OPEN);
+    dialog.set_transient_for(*window);
+
+    //Add response buttons the the dialog:
+    dialog.add_button("Cancel", Gtk::RESPONSE_CANCEL);
+    dialog.add_button("Open", Gtk::RESPONSE_OK);
+
+    int result = dialog.run();
+    std::string filename;
+    switch (result) {
+        case (Gtk::RESPONSE_OK): {
+            std::cout << "Open clicked." << std::endl;
+
+            filename = dialog.get_filename();
+            std::cout << "File selected: " << filename << std::endl;
+            break;
+        }
+        case (Gtk::RESPONSE_CANCEL): {
+            std::cout << "Cancel clicked." << std::endl;
+            break;
+        }
+        default: {
+            std::cout << "Unexpected button clicked." << std::endl;
+            break;
+        }
+    }
+    return filename;
+}
+
+class Task {
+public:
+    static void send(std::string path) {
+        server::SendingServer server(9002, path, [] {  });
+        server.start();
+    }
+};
+
 
 void onSendButtonClicked() {
 
     std::cout << "Send Clicked \n";
-    // TODO: Load file picker, get file path
-    std::string path = "/home/hamza/Pictures/385149.jpg"; // Get this path from user
-    server::SendingServer server(9002, path, [] { window->close(); });
-    server.start();
 
+    std::string path = getFile();
+    if (!path.empty()) {
+        std::thread t (&Task::send, path);
+        t.detach();
+    }
 }
 
 void onReceiveButtonClicked() {
-    std::cout << "Receive Clicked \n";
-    // TODO: Load file picker, get save location, start server send file
+
 }
 
 Gtk::Button *loadButton(const Glib::RefPtr<Gtk::Builder> &builder, const std::string &name, void handler()) {

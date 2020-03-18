@@ -10,7 +10,7 @@ using server::SendingServer;
 
 void SendingServer::onMessage(websocketpp::connection_hdl hdl, const asio_server::message_ptr &msg) {
     if (msg->get_opcode() == websocketpp::frame::opcode::close || msg->get_payload() == "stfu") {
-        m_server.stop_listening();
+        m_server.stop(); // Forcefully stop the server because yes
         doneCallback();
     }
 }
@@ -22,7 +22,16 @@ void SendingServer::onOpen(websocketpp::connection_hdl hdl) {
     std::string payload = std::string(std::istreambuf_iterator<char>(ifs), std::istreambuf_iterator<char>());
     ifs.close();
 
-    m_server.send(std::move(hdl), payload, websocketpp::frame::opcode::binary);
+    int size = payload.size();
+    std::cout << "Size " << size << "\n";
+    if (size > 1048576) {
+//        TODO: fix this
+        std::cout << "Nope, too big\n";
+        m_server.stop();
+        doneCallback();
+    } else {
+        m_server.send(std::move(hdl), payload, websocketpp::frame::opcode::binary);
+    }
 }
 
 void SendingServer::start() {
@@ -34,8 +43,6 @@ void SendingServer::start() {
         m_server.run();
     } catch (const std::exception &e) {
         std::cout << e.what() << std::endl;
-    } catch (...) {
-        std::cout << "Something horribly went wrong" << std::endl;
     }
 }
 
