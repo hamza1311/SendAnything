@@ -22,16 +22,7 @@ void SendingServer::onOpen(websocketpp::connection_hdl hdl) {
     std::string payload = std::string(std::istreambuf_iterator<char>(ifs), std::istreambuf_iterator<char>());
     ifs.close();
 
-    int size = payload.size();
-    std::cout << "Size " << size << "\n";
-    if (size > 1048576) {
-//        TODO: fix this
-        std::cout << "Nope, too big\n";
-        m_server.stop();
-        doneCallback();
-    } else {
-        m_server.send(std::move(hdl), payload, websocketpp::frame::opcode::binary);
-    }
+    m_server.send(std::move(hdl), payload, websocketpp::frame::opcode::binary);
 }
 
 void SendingServer::start() {
@@ -46,7 +37,10 @@ void SendingServer::start() {
     }
 }
 
-server::SendingServer::SendingServer(int port, const std::string &fileToSend, void _doneCallback()) : Server(port) {
+server::SendingServer::SendingServer(int _port, const std::string &fileToSend, void _doneCallback()) {
+    port = _port;
     filepath = fileToSend;
     doneCallback = _doneCallback;
+
+    m_server.init_asio();
 }

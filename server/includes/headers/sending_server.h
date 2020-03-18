@@ -6,7 +6,7 @@
 
 namespace server {
 
-    class SendingServer : server::Server {
+    class SendingServer {
     protected:
         void onOpen(websocketpp::connection_hdl hdl);
 
@@ -14,12 +14,16 @@ namespace server {
 
         std::function<void ()> doneCallback;
 
+        asio_server m_server;
+
     public:
         SendingServer(int port, const std::string &fileToSend, void _doneCallback());
 
         void start();
 
         std::string filepath;
+
+        int port;
 
     };
 }
