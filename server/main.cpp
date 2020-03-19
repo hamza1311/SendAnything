@@ -1,83 +1,11 @@
-#include "headers/sending_server.h"
 #include <gtkmm.h>
 #include <iostream>
-#include <thread>
-#include <functional>
-#include <headers/receiving_server.h>
-
-Gtk::Window *window = nullptr;
-const int PORT = 9002;
-
-std::string getFileOrFolder(Gtk::FileChooserAction action) {
-    std::cout << "Receive Clicked \n";
-
-    Gtk::FileChooserDialog dialog("Please choose a file", action);
-    dialog.set_transient_for(*window);
-
-    //Add response buttons the the dialog:
-    dialog.add_button("Cancel", Gtk::RESPONSE_CANCEL);
-    dialog.add_button("Open", Gtk::RESPONSE_OK);
-
-    int result = dialog.run();
-    std::string filename;
-    switch (result) {
-        case (Gtk::RESPONSE_OK): {
-            std::cout << "Open clicked." << std::endl;
-
-            filename = dialog.get_filename();
-            std::cout << "File selected: " << filename << std::endl;
-            break;
-        }
-        case (Gtk::RESPONSE_CANCEL): {
-            std::cout << "Cancel clicked." << std::endl;
-            break;
-        }
-        default: {
-            std::cout << "Unexpected button clicked." << std::endl;
-            break;
-        }
-    }
-    return filename;
-}
-
-
-void onSendButtonClicked() {
-
-    std::cout << "Send Clicked \n";
-
-    std::string path = getFileOrFolder(Gtk::FILE_CHOOSER_ACTION_OPEN);
-    if (!path.empty()) {
-        std::thread thread([path] {
-            server::SendingServer server(PORT, path);
-            server.start();
-        });
-        thread.detach();
-    }
-}
-
-void onReceiveButtonClicked() {
-    std::cout << "Receive Clicked\n";
-
-    std::string path = getFileOrFolder(Gtk::FILE_CHOOSER_ACTION_SELECT_FOLDER);
-    if (!path.empty()) {
-        std::thread thread([path] {
-            server::ReceivingServer server(PORT, path);
-            server.start();
-        });
-        thread.detach();
-    }
-}
-
-Gtk::Button *loadButton(const Glib::RefPtr<Gtk::Builder> &builder, const std::string &name, void handler()) {
-    Gtk::Button *button = nullptr;
-    builder->get_widget(name, button);
-    button->signal_clicked().connect(sigc::ptr_fun(handler));
-    return button;
-}
+#include "headers/ui.hpp"
 
 int main(int argc, char *argv[]) {
 
     auto app = Gtk::Application::create(argc, argv, "dev.hamza.send-anything");
+    Gtk::Window *window = nullptr;
 
     Glib::RefPtr<Gtk::Builder> builder = Gtk::Builder::create();
     try {
@@ -96,8 +24,8 @@ int main(int argc, char *argv[]) {
 
     builder->get_widget("MainWindow", window);
 
-    loadButton(builder, "SendButton", onSendButtonClicked);
-    loadButton(builder, "ReceiveButton", onReceiveButtonClicked);
+    ui::Utils::loadButton(builder, "SendButton", ui::Utils::onSendButtonClicked, window);
+    ui::Utils::loadButton(builder, "ReceiveButton", ui::Utils::onReceiveButtonClicked, window);
 
     return app->run(*window);
 }

@@ -51,6 +51,7 @@ void ReceivingServer::onMessage(const websocketpp::connection_hdl &hdl, const as
             std::cout << "\nBinary received\n";
 
             m_server.send(hdl, "Successfully received", websocketpp::frame::opcode::text);
+            m_server.stop_listening();
             m_server.stop();
         }
 
