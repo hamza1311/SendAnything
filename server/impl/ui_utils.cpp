@@ -1,35 +1,9 @@
 #include <iostream>
-#include <thread>
 
-#include "headers/receiving_server.h"
-#include "headers/sending_server.h"
+
 #include "headers/ui.hpp"
 
 using ui::Utils;
-
-const int PORT = 9002;
-
-void Utils::onSendButtonClicked(Gtk::Window *window) {
-    std::string path = Utils::getFileOrFolder(Gtk::FILE_CHOOSER_ACTION_OPEN, window);
-    if (!path.empty()) {
-        std::thread thread([path] {
-            server::SendingServer server(PORT, path);
-            server.start();
-        });
-        thread.detach();
-    }
-}
-
-void Utils::onReceiveButtonClicked(Gtk::Window *window) {
-    std::string path = Utils::getFileOrFolder(Gtk::FILE_CHOOSER_ACTION_SELECT_FOLDER, window);
-    if (!path.empty()) {
-        std::thread thread([path] {
-            server::ReceivingServer server(PORT, path);
-            server.start();
-        });
-        thread.detach();
-    }
-}
 
 std::string Utils::getFileOrFolder(Gtk::FileChooserAction action, Gtk::Window *window) {
     std::cout << "Receive Clicked \n";

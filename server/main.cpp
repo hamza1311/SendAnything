@@ -24,8 +24,8 @@ int main(int argc, char *argv[]) {
 
     builder->get_widget("MainWindow", window);
 
-    ui::Utils::loadButton(builder, "SendButton", ui::Utils::onSendButtonClicked, window);
-    ui::Utils::loadButton(builder, "ReceiveButton", ui::Utils::onReceiveButtonClicked, window);
+    ui::Utils::loadButton(builder, "SendButton", ui::Handlers::onSendButtonClicked, window);
+    ui::Utils::loadButton(builder, "ReceiveButton", ui::Handlers::onReceiveButtonClicked, window);
 
     return app->run(*window);
 }
