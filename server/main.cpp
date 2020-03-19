@@ -6,6 +6,7 @@
 #include <headers/receiving_server.h>
 
 Gtk::Window *window = nullptr;
+const int PORT = 9002;
 
 std::string getFileOrFolder(Gtk::FileChooserAction action) {
     std::cout << "Receive Clicked \n";
@@ -39,19 +40,6 @@ std::string getFileOrFolder(Gtk::FileChooserAction action) {
     return filename;
 }
 
-class Task {
-public:
-    static void send(std::string path) {
-        server::SendingServer server(9002, path);
-        server.start();
-    }
-
-    static void receive(std::string path) {
-        server::ReceivingServer server(9002, path);
-        server.start();
-    }
-};
-
 
 void onSendButtonClicked() {
 
@@ -59,7 +47,10 @@ void onSendButtonClicked() {
 
     std::string path = getFileOrFolder(Gtk::FILE_CHOOSER_ACTION_OPEN);
     if (!path.empty()) {
-        std::thread thread(&Task::send, path);
+        std::thread thread([path] {
+            server::SendingServer server(PORT, path);
+            server.start();
+        });
         thread.detach();
     }
 }
@@ -69,7 +60,10 @@ void onReceiveButtonClicked() {
 
     std::string path = getFileOrFolder(Gtk::FILE_CHOOSER_ACTION_SELECT_FOLDER);
     if (!path.empty()) {
-        std::thread thread(&Task::receive, path);
+        std::thread thread([path] {
+            server::ReceivingServer server(PORT, path);
+            server.start();
+        });
         thread.detach();
     }
 }
