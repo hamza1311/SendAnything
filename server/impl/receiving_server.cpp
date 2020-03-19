@@ -3,6 +3,7 @@
 #include <iostream>
 #include <fstream>
 #include <utility>
+#include <ctime>
 
 using websocketpp::lib::placeholders::_1;
 using websocketpp::lib::placeholders::_2;
@@ -30,7 +31,9 @@ void ReceivingServer::start() {
 
 void ReceivingServer::onMessage(const websocketpp::connection_hdl &hdl, const asio_server::message_ptr &msg) {
     try {
-        std::string filename = this-> saveDirectory + "/name.png"; // temp, use random string or timestamp
+        std::time_t currentTime = std::time(nullptr);
+
+        std::string filename = this->saveDirectory + "/" + std::to_string(currentTime);
         std::string payload = msg->get_payload();
         websocketpp::frame::opcode::value opcode = msg->get_opcode();
 
@@ -48,6 +51,7 @@ void ReceivingServer::onMessage(const websocketpp::connection_hdl &hdl, const as
             std::cout << "\nBinary received\n";
 
             m_server.send(hdl, "Successfully received", websocketpp::frame::opcode::text);
+            m_server.stop();
         }
 
     } catch (websocketpp::exception const &e) {

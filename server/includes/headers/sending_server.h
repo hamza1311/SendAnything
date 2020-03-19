@@ -1,8 +1,12 @@
 #ifndef SEND_ANYTHING_SENDING_SERVER_H
 #define SEND_ANYTHING_SENDING_SERVER_H
 
-#include "headers/server.hpp"
-#include <functional>
+#include <websocketpp/server.hpp>
+#include <websocketpp/config/asio_no_tls.hpp>
+
+#include <string>
+
+typedef websocketpp::server<websocketpp::config::asio> asio_server;
 
 namespace server {
 
