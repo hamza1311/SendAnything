@@ -3,14 +3,14 @@
 #include <iostream>
 #include <thread>
 #include <functional>
+#include <headers/receiving_server.h>
 
 Gtk::Window *window = nullptr;
 
-std::string getFile() {
+std::string getFileOrFolder(Gtk::FileChooserAction action) {
     std::cout << "Receive Clicked \n";
 
-    Gtk::FileChooserDialog dialog("Please choose a file",
-                                  Gtk::FILE_CHOOSER_ACTION_OPEN);
+    Gtk::FileChooserDialog dialog("Please choose a file", action);
     dialog.set_transient_for(*window);
 
     //Add response buttons the the dialog:
@@ -45,6 +45,11 @@ public:
         server::SendingServer server(9002, path);
         server.start();
     }
+
+    static void receive(std::string path) {
+        server::ReceivingServer server(9002, path);
+        server.start();
+    }
 };
 
 
@@ -52,15 +57,21 @@ void onSendButtonClicked() {
 
     std::cout << "Send Clicked \n";
 
-    std::string path = getFile();
+    std::string path = getFileOrFolder(Gtk::FILE_CHOOSER_ACTION_OPEN);
     if (!path.empty()) {
-        std::thread t (&Task::send, path);
-        t.detach();
+        std::thread thread(&Task::send, path);
+        thread.detach();
     }
 }
 
 void onReceiveButtonClicked() {
+    std::cout << "Receive Clicked\n";
 
+    std::string path = getFileOrFolder(Gtk::FILE_CHOOSER_ACTION_SELECT_FOLDER);
+    if (!path.empty()) {
+        std::thread thread(&Task::receive, path);
+        thread.detach();
+    }
 }
 
 Gtk::Button *loadButton(const Glib::RefPtr<Gtk::Builder> &builder, const std::string &name, void handler()) {
