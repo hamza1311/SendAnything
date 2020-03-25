@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Send Anything</string>
+    <string name="receive">Receive</string>
+    <string name="send">Send</string>
+</resources>
