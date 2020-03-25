@@ -2,29 +2,25 @@ package com.example.sendanything
 
 import android.app.Activity
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
 import io.ktor.client.features.websocket.WebSockets
-import io.ktor.client.features.websocket.webSocket
 import io.ktor.client.features.websocket.ws
-import io.ktor.client.request.get
-import io.ktor.client.statement.HttpResponse
 import io.ktor.http.HttpMethod
 import io.ktor.http.cio.websocket.Frame
 import io.ktor.http.cio.websocket.readBytes
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.io.BufferedInputStream
+import java.io.ByteArrayInputStream
 import java.io.FileOutputStream
-import java.io.IOException
-
-enum class CurrentOperation {
-    SEND, RECEIVE
-}
+import java.net.URLConnection
 
 const val PORT = 9002
 
@@ -46,7 +42,12 @@ class MainActivity : AppCompatActivity() {
                 client.ws(method = HttpMethod.Get, host = "10.0.2.2", port = PORT, path = "/") {
                     incoming.receive().readBytes().let {
                         savedBuffer = it
-                        createFile("image/png", "img.png")
+                        val inputStream = BufferedInputStream(ByteArrayInputStream(it))
+                        val mimeType = withContext(Dispatchers.IO) {
+                            URLConnection.guessContentTypeFromStream(inputStream)
+                        }
+
+                        createFile(mimeType)
                     }
                 }
             }
@@ -102,11 +103,11 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-    private fun createFile(mimeType: String, fileName: String) {
+    private fun createFile(mimeType: String) {
         val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
             addCategory(Intent.CATEGORY_OPENABLE)
             type = mimeType
-            putExtra(Intent.EXTRA_TITLE, fileName)
+            putExtra(Intent.EXTRA_TITLE, (System.currentTimeMillis() / 1000).toString())
         }
         startActivityForResult(intent, CREATE_FILE)
     }
